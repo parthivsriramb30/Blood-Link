@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodLink — Blood Donor Registry and Search</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <!-- Simple Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand">
+                <span>BloodLink</span>
+                <span class="brand-tag">Donor Registry</span>
+            </a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}" class="active">Dashboard</a></li>
+                <li><a th:href="@{/donors/register}">Register Donor</a></li>
+                <li><a th:href="@{/search}">Find Donor</a></li>
+                <li><a th:href="@{/donors}">All Donors</a></li>
+                <li><a th:href="@{/donations/record}">Record Donation</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Box with Key Actions -->
+        <div class="hero-box">
+            <h1>BloodLink — Blood Donor Registry & Search</h1>
+            <p>
+                A centralized blood donor registry connecting patients and hospitals with eligible blood donors.
+                Features automated 90-day cooldown enforcement to safeguard donor health and ensure data accuracy.
+            </p>
+            <div class="hero-actions">
+                <a th:href="@{/search}" class="btn btn-primary">FIND BLOOD DONOR</a>
+                <a th:href="@{/donors/register}" class="btn btn-secondary">REGISTER AS DONOR</a>
+                <a th:href="@{/donations/record}" class="btn btn-outline">RECORD DONATION</a>
+            </div>
+        </div>
+
+
+        <!-- Live Statistics Grid -->
+        <div class="page-header" style="margin-top: 32px; border-bottom: none; padding-bottom: 0;">
+            <div>
+                <h2 class="page-title">Registry Overview</h2>
+                <p class="page-subtitle">Real-time statistics dynamically calculated from the database</p>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-label">Total Donors</div>
+                <div class="stat-value" th:text="${totalDonors}">0</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-label">Available Donors</div>
+                <div class="stat-value" th:text="${availableDonors}">0</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-label">Donors in Cooldown</div>
+                <div class="stat-value" th:text="${cooldownDonors}">0</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-label">Total Donations</div>
+                <div class="stat-value" th:text="${totalDonations}">0</div>
+            </div>
+        </div>
+
+        <!-- Blood Group Distribution -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Donors by Blood Group</h3>
+            </div>
+            <div class="bg-stats-grid">
+                <div th:each="entry : ${bloodGroupStats}" class="bg-stat-item">
+                    <div class="bg-name" th:text="${entry.key}">A+</div>
+                    <div class="bg-count" th:text="${entry.value}">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 90-Day Cooldown Business Rule Card -->
+        <div class="card" style="border-left: 4px solid #d97706; background-color: #fffbeb;">
+            <div class="card-header" style="border-bottom-color: #fde68a;">
+                <h3 class="card-title" style="color: #92400e;">Core Business Rule: 90-Day Cooldown Period</h3>
+            </div>
+            <p style="color: #78350f; font-size: 13px;">
+                Following medical safety guidelines, a blood donor must not donate blood more than once every <strong>90 days</strong>.
+                When a donation is recorded in BloodLink, the service layer marks the donor as <strong>COOLDOWN</strong> and automatically hides them from search results.
+                After the exact 90 days elapse (<code>currentDate >= lastDonationDate + 90</code>), the donor automatically becomes available again without manual database changes.
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 BloodLink — Blood Donor Registry and Search. Simple College-Level Spring Boot Project.</p>
+    </footer>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

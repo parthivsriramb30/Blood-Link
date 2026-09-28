@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Blood Donation — BloodLink</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <!-- Simple Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand">
+                <span>BloodLink</span>
+                <span class="brand-tag">Donor Registry</span>
+            </a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Dashboard</a></li>
+                <li><a th:href="@{/donors/register}">Register Donor</a></li>
+                <li><a th:href="@{/search}">Find Donor</a></li>
+                <li><a th:href="@{/donors}">All Donors</a></li>
+                <li><a th:href="@{/donations/record}" class="active">Record Donation</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Record Blood Donation</h1>
+                <p class="page-subtitle">Log a blood donation event and start the donor's 90-day cooldown</p>
+            </div>
+            <a th:href="@{/donors}" class="btn btn-secondary">View Donors</a>
+        </div>
+
+        <!-- Error Alert (e.g. Cooldown Violation or Missing Fields) -->
+        <div th:if="${errorMessage}" class="alert alert-danger" style="border-left: 4px solid #b71c1c;">
+            <strong>Unable to Record Donation:</strong>
+            <p th:text="${errorMessage}" style="margin-top: 4px;"></p>
+        </div>
+
+        <div class="card" style="max-width: 760px; margin: 0 auto;">
+            <div class="card-header">
+                <h2 class="card-title">Donation Record Form</h2>
+            </div>
+
+            <form id="donationForm" th:action="@{/donations/record}" method="post">
+                <div class="form-grid">
+
+                    <!-- Donor Selection Dropdown -->
+                    <div class="form-group full-width">
+                        <label for="donorSelect" class="form-label">Select Blood Donor <span class="required">*</span></label>
+                        <select id="donorSelect" name="donorId" class="form-control" required>
+                            <option value="">-- Choose a registered donor --</option>
+                            <option th:each="d : ${donors}"
+                                    th:value="${d.id}"
+                                    th:selected="${selectedDonorId != null && selectedDonorId == d.id}"
+                                    th:text="|${d.name} (${d.bloodGroup.groupName} - ${d.city}) — [${@donorService.isDonorEligible(d) ? 'AVAILABLE' : 'IN COOLDOWN'}]|">
+                            </option>
+                        </select>
+                        <small style="color: #64748b; font-size: 12px; margin-top: 4px; display: block;">
+                            Tip: Donors currently in cooldown cannot donate again until their 90 days elapse.
+                        </small>
+                    </div>
+
+                    <!-- Donation Date -->
+                    <div class="form-group">
+                        <label for="donationDate" class="form-label">Donation Date <span class="required">*</span></label>
+                        <input type="date" id="donationDate" name="donationDate" 
+                               th:value="${defaultDate}" 
+                               class="form-control" required>
+                    </div>
+
+                    <!-- Hospital / Blood Bank Name -->
+                    <div class="form-group">
+                        <label for="hospitalName" class="form-label">Hospital / Camp Name <span class="required">*</span></label>
+                        <input type="text" id="hospitalName" name="hospitalName" class="form-control" 
+                               placeholder="e.g. Apollo Hospital, City Blood Bank" required>
+                    </div>
+
+                    <!-- Notes / Purpose -->
+                    <div class="form-group full-width">
+                        <label for="notes" class="form-label">Notes / Medical Remarks</label>
+                        <textarea id="notes" name="notes" rows="3" class="form-control" 
+                                  placeholder="e.g. Voluntary blood drive, replacement donation, unit number..."></textarea>
+                    </div>
+                </div>
+
+                <div class="alert alert-info" style="margin-top: 16px; font-size: 13px;">
+                    <strong>Service Rule Notice:</strong> Submitting this record will update the donor's <code>lastDonationDate</code> to the specified date.
+                    The donor will immediately enter the <strong>90-day cooldown period</strong> and will not appear in search results until the cooldown expires.
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">SAVE DONATION RECORD</button>
+                    <a th:href="@{/donors}" class="btn btn-secondary">CANCEL</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 BloodLink — Blood Donor Registry and Search. Simple College-Level Spring Boot Project.</p>
+    </footer>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

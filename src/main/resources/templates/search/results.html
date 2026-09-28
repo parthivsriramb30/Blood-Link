@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Available Donors — BloodLink</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <!-- Simple Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand">
+                <span>BloodLink</span>
+                <span class="brand-tag">Donor Registry</span>
+            </a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Dashboard</a></li>
+                <li><a th:href="@{/donors/register}">Register Donor</a></li>
+                <li><a th:href="@{/search}" class="active">Find Donor</a></li>
+                <li><a th:href="@{/donors}">All Donors</a></li>
+                <li><a th:href="@{/donations/record}">Record Donation</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Find Available Blood Donors</h1>
+                <p class="page-subtitle">Search for willing donors by blood group and city</p>
+            </div>
+            <a th:href="@{/donors}" class="btn btn-secondary">View All Donors</a>
+        </div>
+
+        <!-- Search Form Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Search Criteria</h2>
+            </div>
+
+            <form th:action="@{/search}" method="get" class="form-grid">
+                <!-- Blood Group Filter -->
+                <div class="form-group">
+                    <label for="bloodGroup" class="form-label">Blood Group</label>
+                    <select id="bloodGroup" name="bloodGroup" class="form-control">
+                        <option value="">-- All Blood Groups --</option>
+                        <option th:each="bg : ${bloodGroups}" 
+                                th:value="${bg.groupName}" 
+                                th:text="${bg.groupName}"
+                                th:selected="${bg.groupName == selectedBloodGroup}"></option>
+                    </select>
+                </div>
+
+                <!-- City Filter -->
+                <div class="form-group">
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" id="city" name="city" th:value="${selectedCity}" class="form-control" 
+                           placeholder="e.g. Coimbatore, Chennai, Erode">
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-group" style="display: flex; align-items: flex-end; gap: 8px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">SEARCH DONORS</button>
+                    <a th:href="@{/search}" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
+
+            <div style="margin-top: 10px; font-size: 12px; color: #64748b;">
+                * <strong>Important Note:</strong> Only donors currently eligible to donate are returned in search results. Donors within the 90-day cooldown period are automatically excluded by the service layer.
+            </div>
+        </div>
+
+        <!-- Search Results Section -->
+        <div th:if="${hasSearched}">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        Available Donors Found: <span th:text="${#lists.size(results)}">0</span>
+                    </h3>
+                    <div style="font-size: 13px; color: #64748b;">
+                        Filter: 
+                        <span th:text="${selectedBloodGroup != '' ? selectedBloodGroup : 'All Groups'}"></span> 
+                        | 
+                        <span th:text="${selectedCity != '' ? selectedCity : 'All Cities'}"></span>
+                    </div>
+                </div>
+
+                <!-- No Results Alert -->
+                <div th:if="${#lists.isEmpty(results)}" class="alert alert-warning">
+                    <strong>No eligible donors found matching your search.</strong><br>
+                    Possible reasons:
+                    <ul style="margin-left: 20px; margin-top: 6px; font-size: 13px;">
+                        <li>No registered donors match the specified blood group or city.</li>
+                        <li>Existing matching donors may have donated recently and are currently in the <strong>90-day cooldown period</strong>.</li>
+                    </ul>
+                </div>
+
+                <!-- Results Table -->
+                <div th:if="${!#lists.isEmpty(results)}" class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Donor Name</th>
+                                <th>Blood Group</th>
+                                <th>City</th>
+                                <th>Last Donation Date</th>
+                                <th>Availability</th>
+                                <th>Contact Number</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="donor : ${results}">
+                                <td>
+                                    <a th:href="@{/donors/{id}(id=${donor.id})}" style="font-weight: 600; color: #0f172a; text-decoration: none;">
+                                        <span th:text="${donor.name}">Arun Kumar</span>
+                                    </a>
+                                    <div style="font-size: 11px; color: #64748b;" th:text="|${donor.gender}, ${donor.age} yrs|">Male, 24 yrs</div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-bloodgroup" th:text="${donor.bloodGroup.groupName}">O+</span>
+                                </td>
+                                <td th:text="${donor.city}">Coimbatore</td>
+                                <td>
+                                    <span th:if="${donor.lastDonationDate != null}" th:text="${#temporals.format(donor.lastDonationDate, 'dd-MM-yyyy')}">01-01-2026</span>
+                                    <span th:if="${donor.lastDonationDate == null}" style="color: #64748b; font-style: italic;">Never donated</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-available">AVAILABLE</span>
+                                </td>
+                                <td>
+                                    <a th:href="'tel:' + ${donor.phone}" style="font-weight: 600; color: #c62828; text-decoration: none;" th:text="${donor.phone}">9876543210</a>
+                                </td>
+                                <td style="text-align: right; white-space: nowrap;">
+                                    <a th:href="@{/donors/{id}(id=${donor.id})}" class="btn btn-secondary btn-sm">Details</a>
+                                    <a th:href="@{/donations/record(donorId=${donor.id})}" class="btn btn-outline btn-sm" style="margin-left: 4px;">Record Donation</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 BloodLink — Blood Donor Registry and Search. Simple College-Level Spring Boot Project.</p>
+    </footer>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

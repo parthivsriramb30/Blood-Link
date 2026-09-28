@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title != null ? title : 'Error — BloodLink'}">Error — BloodLink</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <!-- Simple Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand">
+                <span>BloodLink</span>
+                <span class="brand-tag">Donor Registry</span>
+            </a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Dashboard</a></li>
+                <li><a th:href="@{/donors/register}">Register Donor</a></li>
+                <li><a th:href="@{/search}">Find Donor</a></li>
+                <li><a th:href="@{/donors}">All Donors</a></li>
+                <li><a th:href="@{/donations/record}">Record Donation</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card" style="max-width: 650px; margin: 40px auto; border-top: 4px solid #c62828;">
+            <div class="card-header">
+                <h1 class="card-title" style="font-size: 18px; color: #991b1b;" th:text="${title != null ? title : 'Notice'}">Error Encountered</h1>
+                <span th:if="${statusCode != null}" class="badge badge-cooldown" th:text="'Status: ' + ${statusCode}">400</span>
+            </div>
+
+            <div style="padding: 10px 0;">
+                <p style="font-size: 15px; color: #1e293b; margin-bottom: 16px;" th:text="${errorMessage}">
+                    An unexpected issue occurred while processing your request.
+                </p>
+
+                <!-- Additional Cooldown info if available -->
+                <div th:if="${eligibleDate != null}" class="alert alert-warning" style="margin-bottom: 20px;">
+                    <strong>Next Eligible Donation Date:</strong> <span th:text="${eligibleDate}">01 April 2026</span>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <a th:href="@{/}" class="btn btn-primary">Go to Dashboard</a>
+                    <a th:href="@{/donors}" class="btn btn-secondary">View Donors</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 BloodLink — Blood Donor Registry and Search. Simple College-Level Spring Boot Project.</p>
+    </footer>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

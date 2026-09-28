@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Blood Donor — BloodLink</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <!-- Simple Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand">
+                <span>BloodLink</span>
+                <span class="brand-tag">Donor Registry</span>
+            </a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Dashboard</a></li>
+                <li><a th:href="@{/donors/register}" class="active">Register Donor</a></li>
+                <li><a th:href="@{/search}">Find Donor</a></li>
+                <li><a th:href="@{/donors}">All Donors</a></li>
+                <li><a th:href="@{/donations/record}">Record Donation</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Donor Registration</h1>
+                <p class="page-subtitle">Add a willing blood donor to the central registry</p>
+            </div>
+            <a th:href="@{/donors}" class="btn btn-secondary">Back to Donor List</a>
+        </div>
+
+        <div class="card" style="max-width: 800px; margin: 0 auto;">
+            <div class="card-header">
+                <h2 class="card-title">Donor Details Form</h2>
+            </div>
+
+            <!-- Error / Duplicate Alert -->
+            <div th:if="${errorMessage}" class="alert alert-danger" style="border-left: 4px solid #b71c1c; margin-bottom: 20px;">
+                <strong th:text="${errorMessage}">A donor with this phone number or identical details already exists.</strong>
+            </div>
+
+            <form th:action="@{/donors/register}" th:object="${donor}" method="post">
+                <div class="form-grid">
+                    
+                    <!-- Full Name -->
+                    <div class="form-group full-width">
+                        <label for="name" class="form-label">Full Name <span class="required">*</span></label>
+                        <input type="text" id="name" th:field="*{name}" class="form-control" 
+                               th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                               placeholder="e.g. Arun Kumar">
+                        <span class="error-message" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                    </div>
+
+                    <!-- Blood Group -->
+                    <div class="form-group">
+                        <label for="bloodGroup" class="form-label">Blood Group <span class="required">*</span></label>
+                        <select id="bloodGroup" th:field="*{bloodGroup.id}" class="form-control"
+                                th:classappend="${#fields.hasErrors('bloodGroup')} ? 'is-invalid' : ''">
+                            <option value="">-- Select Blood Group --</option>
+                            <option th:each="bg : ${bloodGroups}" 
+                                    th:value="${bg.id}" 
+                                    th:text="${bg.groupName}"></option>
+                        </select>
+                        <span class="error-message" th:if="${#fields.hasErrors('bloodGroup')}" th:errors="*{bloodGroup}"></span>
+                    </div>
+
+                    <!-- Age -->
+                    <div class="form-group">
+                        <label for="age" class="form-label">Age (18 - 65) <span class="required">*</span></label>
+                        <input type="number" id="age" th:field="*{age}" class="form-control" min="18" max="65"
+                               th:classappend="${#fields.hasErrors('age')} ? 'is-invalid' : ''"
+                               placeholder="e.g. 25">
+                        <span class="error-message" th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></span>
+                    </div>
+
+                    <!-- Gender -->
+                    <div class="form-group">
+                        <label for="gender" class="form-label">Gender <span class="required">*</span></label>
+                        <select id="gender" th:field="*{gender}" class="form-control"
+                                th:classappend="${#fields.hasErrors('gender')} ? 'is-invalid' : ''">
+                            <option value="">-- Select Gender --</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <span class="error-message" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></span>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Phone Number (10 digits) <span class="required">*</span></label>
+                        <input type="tel" id="phone" th:field="*{phone}" class="form-control" maxlength="10"
+                               th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid' : ''"
+                               placeholder="e.g. 9876543210">
+                        <span class="error-message" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></span>
+                    </div>
+
+                    <!-- Email Address -->
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" th:field="*{email}" class="form-control"
+                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
+                               placeholder="e.g. donor@example.com">
+                        <span class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+                    </div>
+
+                    <!-- City -->
+                    <div class="form-group">
+                        <label for="city" class="form-label">City <span class="required">*</span></label>
+                        <input type="text" id="city" th:field="*{city}" class="form-control"
+                               th:classappend="${#fields.hasErrors('city')} ? 'is-invalid' : ''"
+                               placeholder="e.g. Coimbatore">
+                        <span class="error-message" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">REGISTER DONOR</button>
+                    <a th:href="@{/donors}" class="btn btn-secondary">CANCEL</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 BloodLink — Blood Donor Registry and Search. Simple College-Level Spring Boot Project.</p>
+    </footer>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>
